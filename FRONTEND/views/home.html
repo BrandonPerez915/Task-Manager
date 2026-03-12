@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home - Task Manager</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="./styles/home.css" />
+    <script src="../test.js"></script>
+    <script src="../models/user.js"></script>
+    <script src="../models/tag.js"></script>
+    <script src="../models/task.js"></script>
+    <script src="../controllers/userController.js"></script>
+    <script src="../controllers/tagController.js"></script>
+    <script src="../controllers/taskController.js"></script>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="./home.html">
+          <img
+            src="./assets/Brandon.jpeg"
+            class="rounded-circle me-2"
+            alt="User"
+            width="40"
+            height="40"
+          />
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="./tasks.html">Tareas</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown"
+                >Etiquetas</a
+              >
+              <ul class="dropdown-menu dropdown-menu-dark">
+                <li><a class="dropdown-item" href="#">Salud</a></li>
+                <li><a class="dropdown-item" href="#">Proyectos</a></li>
+                <li><a class="dropdown-item" href="#">Higiene</a></li>
+                <li><a class="dropdown-item" href="#">Escuela</a></li>
+                <li><hr class="dropdown-divider" /></li>
+                <li>
+                  <a
+                    class="dropdown-item"
+                    href="#"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalNewLabel"
+                    >+ Nueva etiqueta</a
+                  >
+                </li>
+              </ul>
+            </li>
+          </ul>
+          <form class="d-flex me-2">
+            <input
+              class="form-control me-2"
+              type="search"
+              placeholder="Buscar"
+            />
+            <button class="btn btn-outline-success" type="submit">
+              Buscar
+            </button>
+          </form>
+          <a
+            href="#"
+            class="text-light fs-4"
+            title="Cerrar sesión"
+            data-bs-toggle="modal"
+            data-bs-target="#modalLogout"
+          >
+            <i class="fas fa-sign-out-alt"></i>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mt-4">
+      <div class="row g-4">
+        <div class="col-md-6">
+          <div class="card p-3">
+            <h5 class="card-title">Resumen Usuario</h5>
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-3">
+                <img
+                  src="./assets/Brandon.jpeg"
+                  class="rounded-circle me-3"
+                  width="100"
+                  height="100"
+                />
+                <div>
+                  <h6 class="mb-0">Brandon Pérez</h6>
+                  <small class="d-block">Tareas terminadas hoy: 6</small>
+                  <small class="d-block">Tareas pendientes hoy: 4</small>
+                </div>
+              </div>
+              <p class="small">
+                AI Resume: El usuario ha completado el 60% de su trabajo hoy.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="card p-3">
+            <h5 class="card-title">Tareas de hoy</h5>
+            <div class="card-body p-0">
+              <table class="table table-dark table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th><i class="fas fa-check"></i></th>
+                    <th>Tarea</th>
+                    <th>Etiquetas</th>
+                    <th>Fecha</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><input type="checkbox" class="form-check-input" /></td>
+                    <td>Escribir 3 páginas</td>
+                    <td><span class="badge bg-primary">Proyectos</span></td>
+                    <td>2024-06-01</td>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" class="form-check-input" /></td>
+                    <td>Correr 5 km</td>
+                    <td>
+                      <span class="badge bg-warning text-dark">Salud</span>
+                    </td>
+                    <td>2024-06-01</td>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" class="form-check-input" /></td>
+                    <td>Terminar practica 1</td>
+                    <td><span class="badge bg-danger">Escuela</span></td>
+                    <td>2024-06-01</td>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" class="form-check-input" /></td>
+                    <td>Revisar correo</td>
+                    <td><span class="badge bg-primary">Proyectos</span></td>
+                    <td>2024-06-01</td>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" class="form-check-input" /></td>
+                    <td>Comprar verduras</td>
+                    <td>
+                      <span class="badge bg-warning text-dark">Salud</span>
+                    </td>
+                    <td>2024-06-01</td>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" class="form-check-input" /></td>
+                    <td>Repasar notas</td>
+                    <td><span class="badge bg-danger">Escuela</span></td>
+                    <td>2024-06-01</td>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" class="form-check-input" /></td>
+                    <td>Llamar a cliente</td>
+                    <td><span class="badge bg-primary">Proyectos</span></td>
+                    <td>2024-06-01</td>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" class="form-check-input" /></td>
+                    <td>Estirar 10 minutos</td>
+                    <td>
+                      <span class="badge bg-warning text-dark">Salud</span>
+                    </td>
+                    <td>2024-06-01</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="card p-3">
+            <h5 class="card-title">Tareas pendientes por etiqueta</h5>
+            <div class="card-body">
+              <div class="d-flex gap-2 flex-wrap mb-3">
+                <span class="badge bg-warning text-dark">Salud</span>
+                <span class="badge bg-primary badge-inactive">Proyectos</span>
+                <span class="badge bg-success badge-inactive">Higiene</span>
+              </div>
+              <table class="table table-dark table-sm">
+                <thead>
+                  <tr>
+                    <th><i class="fas fa-check"></i></th>
+                    <th>Tarea</th>
+                    <th>Etiquetas</th>
+                    <th>Fecha</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><input type="checkbox" class="form-check-input" /></td>
+                    <td>Correr 5 km</td>
+                    <td>
+                      <span class="badge bg-warning text-dark">Salud</span>
+                    </td>
+                    <td>2024-06-01</td>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" class="form-check-input" /></td>
+                    <td>Comprar verduras</td>
+                    <td>
+                      <span class="badge bg-warning text-dark">Salud</span>
+                    </td>
+                    <td>2024-06-01</td>
+                  </tr>
+                  <tr>
+                    <td><input type="checkbox" class="form-check-input" /></td>
+                    <td>Estirar 10 minutos</td>
+                    <td>
+                      <span class="badge bg-warning text-dark">Salud</span>
+                    </td>
+                    <td>2024-06-01</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="card p-3">
+            <h5 class="card-title">Tareas Terminadas</h5>
+            <div class="card-body p-0">
+              <table class="table table-dark">
+                <tbody>
+                  <tr class="task-completed">
+                    <td>
+                      <input type="checkbox" class="form-check-input" checked />
+                    </td>
+                    <td>Armar índice</td>
+                    <td><span class="badge bg-primary">Proyectos</span></td>
+                  </tr>
+                  <tr class="task-completed">
+                    <td>
+                      <input type="checkbox" class="form-check-input" checked />
+                    </td>
+                    <td>Hacer desayuno</td>
+                    <td>
+                      <span class="badge bg-warning text-dark">Salud</span>
+                    </td>
+                  </tr>
+                  <tr class="task-completed">
+                    <td>
+                      <input type="checkbox" class="form-check-input" checked />
+                    </td>
+                    <td>Enviar correo a profesor</td>
+                    <td><span class="badge bg-danger">Escuela</span></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <input type="checkbox" class="form-check-input" checked />
+                    </td>
+                    <td>Revisar reporte</td>
+                    <td><span class="badge bg-primary">Proyectos</span></td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <input type="checkbox" class="form-check-input" checked />
+                    </td>
+                    <td>Preparar comida</td>
+                    <td>
+                      <span class="badge bg-warning text-dark">Salud</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <input type="checkbox" class="form-check-input" checked />
+                    </td>
+                    <td>Hacer tarea de matemáticas</td>
+                    <td><span class="badge bg-danger">Escuela</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="modalLogout" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light">
+          <div class="modal-header border-secondary">
+            <h5 class="modal-title">Cerrar sesión</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body text-center">
+            ¿Seguro de que deseas cerrar sesión?
+          </div>
+          <div class="modal-footer border-secondary">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancelar
+            </button>
+            <a href="./login.html" class="btn btn-primary">Aceptar</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="modalNewLabel"
+      tabindex="-1"
+      aria-labelledby="modalNewLabelLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content custom-modal">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalNewLabelLabel">Nueva etiqueta</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+
+          <div class="modal-body">
+            <form>
+              <div class="mb-4">
+                <label for="LabelName" class="form-label">Nombre</label>
+                <input
+                  type="text"
+                  class="form-control custom-input"
+                  id="LabelName"
+                  placeholder="Deporte"
+                />
+              </div>
+
+              <div class="mb-4">
+                <label for="LabelColor" class="form-label">Color</label>
+                <input
+                  type="color"
+                  class="form-control custom-input form-control-color w-100"
+                  id="LabelColor"
+                  value="#563d7c"
+                  title="Selecciona un color"
+                />
+              </div>
+            </form>
+          </div>
+
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancelar
+            </button>
+            <button type="button" class="btn btn-primary">
+              Crear Etiqueta
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

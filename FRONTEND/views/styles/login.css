@@ -1,0 +1,64 @@
+:root {
+    --primary-color: #2d2e38;
+    --secondary-color: #474E68;
+    --tertiary-color: #50577A;
+    --accent-color: #858ca4;
+    --form-bg-color: #181E26;
+    --input-bg-color: #353E4A;
+    --text-color: #c9c9c9;
+    --text-hover-color: #e4e4e4;
+    --unfinished-task-color: #ff6b6b;
+    --completed-task-color: #4caf50;
+    --in-progress-task-color: #ff9800;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-image: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+    background-attachment: fixed;
+    background-size: cover;
+}
+
+form {
+    background-color: var(--form-bg-color);
+    color: var(--text-color);
+    width: 65%;
+    max-width: 450px;
+    min-width: 300px;
+    padding: 40px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+input {
+    width: 90%;
+    background-color: var(--input-bg-color);
+    color: var(--text-color);
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.form-field {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.hidden {
+    display: none;
+}
+
+a {
+    cursor: pointer;
+    transition: color 0.3s ease;
+    text-decoration: underline;
+}
