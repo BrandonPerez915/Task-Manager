@@ -1,0 +1,96 @@
+:root {
+    --primary-color: #2d2e38;
+    --secondary-color: #474E68;
+    --tertiary-color: #50577A;
+    --accent-color: #858ca4;
+    --form-bg-color: #181E26;
+    --input-bg-color: #353E4A;
+    --text-color: #c9c9c9;
+    --text-hover-color: #e4e4e4;
+    --unfinished-task-color: #ff6b6b;
+    --completed-task-color: #4caf50;
+    --in-progress-task-color: #ff9800;
+}
+
+body {
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.navbar {
+    background-color: #1a1b22 !important;
+    border-bottom: 1px solid var(--secondary-color);
+}
+
+.card {
+    background-color: var(--form-bg-color);
+    border: 1px solid var(--secondary-color);
+    color: var(--text-color);
+    height: 280px;  
+}
+
+.card-body {
+    overflow-y: auto; 
+}
+
+.card-title {
+    border-bottom: 1px solid gray; 
+    padding-bottom: 10px;
+}
+
+.table {
+    color: var(--text-color);
+}
+
+.task-completed {
+    text-decoration: line-through;
+    opacity: 0.7;
+}
+
+.badge-inactive {
+    opacity: 0.5;
+}
+
+.btn-floating {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    z-index: 1000;
+    background-color: var(--completed-task-color);
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+}
+
+.custom-modal {
+    background-color: var(--form-bg-color) !important;
+    color: var(--text-color);
+    border: 1px solid var(--secondary-color);
+}
+
+.custom-modal .modal-header, 
+.custom-modal .modal-footer {
+    border: none; 
+}
+
+.custom-input {
+    background-color: var(--input-bg-color) !important;
+    border: 1px solid var(--secondary-color) !important;
+    color: var(--text-color) !important;
+}
+
+.custom-input::placeholder {
+    color: #6c757d;
+}
+
+.btn-primary {
+    background-color: #4e73df !important;
+    border: none;
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color) !important;
+    border: none;
+}

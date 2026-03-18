@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "title": "Entregar practica 3",
+    "description": "Subir la practica 3 de Desarrollo Web al repositorio",
+    "due_date": "2026-03-20T23:59:00.000Z",
+    "owner": 1,
+    "status": "A",
+    "tags": [2, 4]
+  },
+  {
+    "id": 2,
+    "title": "Comprar despensa",
+    "description": "Ir al supermercado por frutas, verduras y cereal",
+    "due_date": "2026-03-15T18:00:00.000Z",
+    "owner": 2,
+    "status": "A",
+    "tags": [3, 5]
+  },
+  {
+    "id": 3,
+    "title": "Estudiar para examen",
+    "description": "Repasar los temas de bases de datos para el parcial",
+    "due_date": "2026-03-25T08:00:00.000Z",
+    "owner": 3,
+    "status": "A",
+    "tags": [1, 4]
+  },
+  {
+    "id": 4,
+    "title": "Limpiar la casa",
+    "description": "Barrer, trapear y lavar los trastes",
+    "due_date": "2026-03-14T12:00:00.000Z",
+    "owner": 4,
+    "status": "F",
+    "tags": [5]
+  },
+  {
+    "id": 5,
+    "title": "Reunion de equipo",
+    "description": "Junta con el equipo para planear el sprint",
+    "due_date": "2026-03-18T10:00:00.000Z",
+    "owner": 5,
+    "status": "C",
+    "tags": [2]
+  }
+]
