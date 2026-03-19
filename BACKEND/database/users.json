@@ -2,21 +2,10 @@
   "users": [
     {
       "id": 1,
-      "name": "John Doe",
-      "email": "john@exampl.com",
-      "password": "john123"
-    },
-    {
-      "id": 2,
-      "name": "Jane Doe",
-      "email": "jane@example.com",
-      "password": "jane123"
-    },
-    {
-      "id": 3,
-      "name": "Juan Perez",
-      "email": "juan@example.com",
-      "password": "juan123"
+      "name": "John Doe Actualizado",
+      "email": "john@example.com",
+      "password": "john123324",
+      "joined_at": "2026-03-19T22:43:53.508Z"
     }
   ]
 }

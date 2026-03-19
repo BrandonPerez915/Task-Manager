@@ -1,15 +1,17 @@
 import express from 'express'
-import path from 'path'
-import { fileURLToPath } from 'url'
 
-import * as usersController from '../controllers/users_controller.js'
+import * as controller from '../controllers/users_controller.js'
 
 const usersRouter = express.Router()
 
-usersRouter.post('/', usersController.postUser)
+usersRouter.post('/', controller.postUser)
 
-usersRouter.get('/', usersController.getUsers)
+usersRouter.get('/', controller.getUsers)
 
-usersRouter.get('/:id', usersController.userAuth, usersController.getUser)
+usersRouter.get('/:id', controller.userAuth, controller.getUser)
+
+usersRouter.patch('/:id', controller.userAuth, controller.patchUser)
+
+usersRouter.delete('/:id', controller.userAuth, controller.deleteUser)
 
 export { usersRouter }

@@ -1,7 +1,7 @@
 class UserException extends Error {
   constructor(errorMessage) {
     super(errorMessage)
-    this.name
+    this.name = 'UserException'
   }
 }
 
@@ -12,10 +12,10 @@ class User {
   #password
   #joined_at
 
-  static #usedEmails = new Set()
+  constructor(id, name, email, password) {
+    if (typeof id !== 'number') throw new UserException('ID requerido')
 
-  constructor(name, email, password) {
-    this.#id = getNextUserId()
+    this.#id = id
     this.#joined_at = new Date()
 
     this.name = name
@@ -39,41 +39,38 @@ class User {
     return this.#password
   }
 
-  set name(value) {
-    if (!value || value.trim().length === 0) {
+  set name(name) {
+    if (!name || name.trim().length === 0) {
       throw new UserException('El nombre no puede estar vacío.')
     }
-    this.#name = value
+    this.#name = name
   }
 
-  set email(value) {
-    if (!value || value.trim().length === 0) {
+  set email(email) {
+    if (!email || email.trim().length === 0) {
       throw new UserException('El email no puede estar vacío.')
     }
-    if (User.#usedEmails.has(value) && value !== this.#email) {
-      throw new UserException('Este email ya está en uso por otro usuario.')
-    }
 
-    User.#usedEmails.delete(this.#email)
-    this.#email = value
-    User.#usedEmails.add(value)
+    this.#email = email
   }
 
-  set password(value) {
-    if (!value || value.length < 8) {
+  set password(password) {
+    if (!password || password.length < 8) {
       throw new Error('La contraseña debe tener al menos 8 caracteres.')
     }
-    this.#password = value
+
+    this.#password = password
   }
 
   toObj() {
     return {
-      id: this.id,
-      name: this.name,
-      email: this.email,
-      password: this.password,
-      joinet_at: this.joined_at,
+      id: this.#id,
+      name: this.#name,
+      email: this.#email,
+      password: this.#password,
+      joined_at: this.#joined_at,
     }
   }
 }
+
 export { User }

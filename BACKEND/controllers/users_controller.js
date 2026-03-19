@@ -1,62 +1,57 @@
-import * as fs from 'fs'
 import path from 'path'
+import fs from 'fs'
 import { fileURLToPath } from 'url'
 
-import data from '../database/users.json' with { type: 'json' }
+import { User } from '../models/user.js'
+import rawData from '../database/users.json' with { type: 'json' }
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const usersFilePath = path.join(__dirname, '../database/users.json')
 
-const saveData = () => {
+let users = rawData.users.map((object) => {
+  return new User(object.id, object.name, object.email, object.password)
+})
+
+function saveUsers() {
+  const data = {
+    users: users.map((user) => user.toObj()),
+  }
+
   fs.writeFileSync(usersFilePath, JSON.stringify(data, null, 2))
 }
 
-export function postUser(req, res) {
+function nextId() {
+  if (users.length === 0) return 1
+
+  const maxId = Math.max(...users.map((user) => user.id))
+  return maxId + 1
+}
+
+function postUser(req, res) {
   try {
     const { name, email, password, confirmPassword } = req.body
-    if(!name) return res.status(400).send('Es necesario un nombre de usuario')
-    if(!email) return res.status(400).send('Es necesario un correo')
-    if(!password) return res.status(400).send('Es necesaria una contraseña')
-    if(!confirmPassword) return res.status(400).send('Es necesario confrimar la contraseña')
-
-    let emailExist = false
-    let passwordExist = false
-
-    for(let user of data.users) {
-      if(user.email == email) {
-        emailExist = true
-        break
-      }
-      if(user.password == password) {
-        passwordExist = true
-        break
-      }
-    }
-
-    if (emailExist)
-      return res
-        .status(400)
-        .send('El email proporcionado ya esta vinculado a una cuenta')
-      
-    if (passwordExist)
-      return res
-        .status(400)
-        .send('La contraseña se encuentra en uso, intente con una diferente')
 
     if (password !== confirmPassword) {
       return res.status(400).send('Las contraseñas no coinciden')
     }
 
-    const newUser = {
-      id: data.users.length + 1,
-      name,
-      email,
-      password,
+    if (users.some((user) => user.email === email)) {
+      return res
+        .status(400)
+        .send('El email proporcionado se encuentra en uso, inicie sesion')
+    }
+    if (users.some((user) => user.password === password)) {
+      return res
+        .status(400)
+        .send('La contraseña proporcionada se encuentra en uso')
     }
 
-    data.users.push(newUser)
-    saveData()
+    const userId = nextId()
+    const newUser = new User(userId, name, email, password)
+
+    users.push(newUser)
+    saveUsers()
 
     res.status(201).send('Usuario registrado exitosamente')
   } catch (error) {
@@ -64,20 +59,20 @@ export function postUser(req, res) {
   }
 }
 
-export function getUsers(req, res) {
+function getUsers(req, res) {
   try {
     const auth = req.get('x-auth')
-    if(!auth || auth !== 'admin-auth')
+    if (!auth || auth !== 'admin-auth')
       return res.status(401).send('Usuario no autorizado')
-    
+
     const page = parseInt(req.query.page) || 1
     const limit = parseInt(req.query.limit) || 20
 
-    const total = data.users.length
+    const total = users.length
     const start = (page - 1) * limit
     const end = start + limit
 
-    const users = data.users.slice(start, end)
+    const slicedUsers = users.slice(start, end).map((user) => user.toObj())
 
     const nextPage = end < total ? page + 1 : null
     const prevPage = page > 1 ? page - 1 : null
@@ -92,105 +87,85 @@ export function getUsers(req, res) {
       nextPage,
       prevPage,
       totalPages,
-      data: users
+      data: slicedUsers,
     })
-
-  } catch(error) {
+  } catch (error) {
     res.status(400).send(error.message)
   }
-
 }
 
-export function userAuth(req, res, next) {
+// Middleware para autentificacion de id cuando se pasa por parametro en la url
+function userAuth(req, res, next) {
   const id = parseInt(req.params.id)
-  let user = data.users.find((user) => user.id === id)
+  let user = users.find((user) => user.id === id)
 
-  if(!user) return res.status(404).send('El id proporcionado no corresponde a ningun usuario')
+  if (!user)
+    return res
+      .status(404)
+      .send('El id proporcionado no corresponde a ningun usuario')
 
   const auth = req.get('x-auth')
-  if(!auth || user.password != auth) 
-    return res
-      .status(401)
-      .send('Usuario no autorizado')
-  
+  if (!auth || user.password != auth)
+    return res.status(401).send('Usuario no autorizado')
+
   req.user = user
   next()
 }
 
-export function getUser(req, res) {
-  res.status(200).json(req.user)
+function getUser(req, res) {
+  res.status(200).json(req.user.toObj())
 }
 
-export function patchUser(req, res) {
+function patchUser(req, res) {
+  let properties = Object.keys(req.body)
+  const user = req.user
+  // Snapshot para protegerse de exepciones en setters
+  const backup = { ...user }
+  properties = properties.filter((prop) => prop in user)
 
-}
+  if (properties.length === 0)
+    return res
+      .status(400)
+      .send('No se proporcionaron propiedades validas para modificar')
 
-function searchUsers(attribute, value) {
-  if (data.users.length === 0) return []
-  const firstUser = data.users[0]
-
-  if (!(attribute in firstUser)) {
-    throw new Error(`El atributo "${attribute}" no existe en la clase User.`)
+  try {
+    for (let prop of properties) {
+      user[prop] = req.body[prop]
+    }
+  } catch (error) {
+    // rollback, la accion se hace o no se hace, no hay un punto medio
+    Object.assign(user, backup)
+    res.status(400).send(error.message)
   }
 
-  return data.users.filter((user) => {
-    const userValue = user[attribute]
-
-    if (userValue instanceof Date) {
-      const searchDate = new Date(value).getTime()
-      return userValue.getTime() === searchDate
-    }
-
-    if (typeof userValue === 'string') {
-      return userValue.toLowerCase().includes(String(value).toLowerCase())
-    }
-
-    return userValue == value
+  saveUsers()
+  res.status(200).json({
+    message: 'Usuario modificado',
+    user: user.toObj(),
   })
 }
 
-function getAllUsers() {
-  return data.users
+function deleteUser(req, res) {
+  const user = req.user
+
+  const index = users.indexOf(user)
+  users.splice(index, 1)
+
+  res.status(200).json({
+    message: `usuario con id ${user.id} eliminado`,
+    user: user.toObj(),
+  })
+
+  saveUsers()
 }
 
-function updateUser(id, newInfo) {
-  const user = data.users.find((user) => user.id === id)
-
-  if (!user) {
-    throw new Error(`Id de usuario no encontrado: ${id}`)
-  }
-
-  const validAttributes = ['name', 'email', 'password']
-  let updatedCount = 0
-
-  for (let key in newInfo) {
-    if (validAttributes.includes(key)) {
-      // Propagación de posibles errores en los setters de User
-      try {
-        user[key] = newInfo[key]
-        updatedCount++
-      } catch (error) {
-        throw new Error(
-          `Error al actualizar el atributo ${key}: ${error.message}`,
-        )
-      }
-    }
-  }
-
-  if (updatedCount === 0) {
-    throw new Error('Ningun atributo válido para actualizar user')
-  }
-
-  return true
-}
-
-function deleteUser(id) {
-  const index = data.users.findIndex((user) => user.id === id)
-
-  if (index === -1) {
-    throw new Error(`Id de usuario no encontrado: ${id}`)
-  }
-
-  data.users.splice(index, 1)
-  return true
+export {
+  postUser,
+  getUsers,
+  getUser,
+  userAuth,
+  patchUser,
+  deleteUser,
+  nextId,
+  users,
 }
