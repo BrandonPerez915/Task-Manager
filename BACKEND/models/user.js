@@ -1,8 +1,3 @@
-let currentId = 0
-function getNextUserId() {
-  return ++currentId
-}
-
 class UserException extends Error {
   constructor(errorMessage) {
     super(errorMessage)

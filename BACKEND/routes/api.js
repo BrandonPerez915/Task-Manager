@@ -2,9 +2,9 @@ import express from 'express'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
-import { usersRouter } from './users'
-import { tagsRouter } from './tags'
-import { tasksRouter } from './tasks'
+import { usersRouter } from './users.js'
+import { tagsRouter } from './tags.js'
+import { tasksRouter } from './tasks.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -29,9 +29,9 @@ function auth401(req, res, next) {
 apiRouter.use('/styles', express.static(path.join(VIEWS_PATH, 'styles')))
 apiRouter.use('/assets', express.static(path.join(VIEWS_PATH, 'assets')))
 
-apiRouter.use('./users', usersRouter)
-apiRouter.use('./tags', tagsRouter)
-apiRouter.use('./tasks', tasksRouter)
+apiRouter.use('/users', usersRouter)
+apiRouter.use('/tags', tagsRouter)
+apiRouter.use('/tasks', tasksRouter)
 
 apiRouter.get('/login.html', (req, res) => {
   res.sendFile(path.join(VIEWS_PATH, 'login.html'))

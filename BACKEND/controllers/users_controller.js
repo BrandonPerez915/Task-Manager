@@ -1,8 +1,45 @@
-import { User } from '../models/user.js'
-import { data } from '../db.js'
+import * as fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
-function createUser(name, email, password) {
-  data.users.push(new User(name, email, password))
+import data from '../database/users.json' with { type: 'json' }
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+const usersFilePath = path.join(__dirname, '../database/users.json')
+
+const saveData = () => {
+  fs.writeFileSync(usersFilePath, JSON.stringify(data, null, 2))
+}
+
+function registerUser(req, res) {
+  try {
+    const { name, email, password, confirmPassword } = req.body
+
+    const emailExist = data.users.some((user) => user.email === email)
+    if (emailExist)
+      return res
+        .status(400)
+        .send('El email proporcionado ya esta vinculado a una cuenta')
+
+    if (password !== confirmPassword) {
+      return res.status(400).send('Las contraseñas no coinciden')
+    }
+
+    const newUser = {
+      id: data.users.length + 1,
+      name,
+      email,
+      password,
+    }
+
+    data.users.push(newUser)
+    saveData()
+
+    res.status(201).send('Usuario registrado exitosamente')
+  } catch (error) {
+    res.status(400).send(error.message)
+  }
 }
 
 function getUserById(id) {
@@ -83,7 +120,7 @@ function deleteUser(id) {
 }
 
 export {
-  createUser,
+  registerUser,
   getUserById,
   searchUsers,
   getAllUsers,

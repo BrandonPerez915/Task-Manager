@@ -1,0 +1,31 @@
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "john@exampl.com",
+  "password": "john123",
+  "confirmPassword": "john123"
+}
+
+###
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+  "name": "Jane Doe",
+  "email": "jane@example.com",
+  "password": "jane123",
+  "confirmPassword": "jane123"
+}
+
+###
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+  "name": "Juan Perez",
+  "email": "juan@example.com",
+  "password": "juan123",
+  "confirmPassword": "juan123"
+}
