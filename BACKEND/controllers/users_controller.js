@@ -12,15 +12,37 @@ const saveData = () => {
   fs.writeFileSync(usersFilePath, JSON.stringify(data, null, 2))
 }
 
-function registerUser(req, res) {
+export function postUser(req, res) {
   try {
     const { name, email, password, confirmPassword } = req.body
+    if(!name) return res.status(400).send('Es necesario un nombre de usuario')
+    if(!email) return res.status(400).send('Es necesario un correo')
+    if(!password) return res.status(400).send('Es necesaria una contraseña')
+    if(!confirmPassword) return res.status(400).send('Es necesario confrimar la contraseña')
 
-    const emailExist = data.users.some((user) => user.email === email)
+    let emailExist = false
+    let passwordExist = false
+
+    for(let user of data.users) {
+      if(user.email == email) {
+        emailExist = true
+        break
+      }
+      if(user.password == password) {
+        passwordExist = true
+        break
+      }
+    }
+
     if (emailExist)
       return res
         .status(400)
         .send('El email proporcionado ya esta vinculado a una cuenta')
+      
+    if (passwordExist)
+      return res
+        .status(400)
+        .send('La contraseña se encuentra en uso, intente con una diferente')
 
     if (password !== confirmPassword) {
       return res.status(400).send('Las contraseñas no coinciden')
@@ -42,11 +64,65 @@ function registerUser(req, res) {
   }
 }
 
-function getUserById(id) {
+export function getUsers(req, res) {
+  try {
+    const auth = req.get('x-auth')
+    if(!auth || auth !== 'admin-auth')
+      return res.status(401).send('Usuario no autorizado')
+    
+    const page = parseInt(req.query.page) || 1
+    const limit = parseInt(req.query.limit) || 20
+
+    const total = data.users.length
+    const start = (page - 1) * limit
+    const end = start + limit
+
+    const users = data.users.slice(start, end)
+
+    const nextPage = end < total ? page + 1 : null
+    const prevPage = page > 1 ? page - 1 : null
+    const totalPages = Math.ceil(total / limit)
+
+    res.status(201).json({
+      page,
+      limit,
+      total,
+      start,
+      end,
+      nextPage,
+      prevPage,
+      totalPages,
+      data: users
+    })
+
+  } catch(error) {
+    res.status(400).send(error.message)
+  }
+
+}
+
+export function userAuth(req, res, next) {
+  const id = parseInt(req.params.id)
   let user = data.users.find((user) => user.id === id)
 
-  if (!user) throw new Error('404 - User not found')
-  else return user
+  if(!user) return res.status(404).send('El id proporcionado no corresponde a ningun usuario')
+
+  const auth = req.get('x-auth')
+  if(!auth || user.password != auth) 
+    return res
+      .status(401)
+      .send('Usuario no autorizado')
+  
+  req.user = user
+  next()
+}
+
+export function getUser(req, res) {
+  res.status(200).json(req.user)
+}
+
+export function patchUser(req, res) {
+
 }
 
 function searchUsers(attribute, value) {
@@ -117,13 +193,4 @@ function deleteUser(id) {
 
   data.users.splice(index, 1)
   return true
-}
-
-export {
-  registerUser,
-  getUserById,
-  searchUsers,
-  getAllUsers,
-  updateUser,
-  deleteUser,
 }
