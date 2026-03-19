@@ -1,31 +1,181 @@
-POST http://localhost:3000/users
+@baseUrl = http://localhost:3000
+
+### ==========================================
+### 1. CREAR USUARIOS (POST /users)
+### ==========================================
+
+# @name CrearUsuarioJohn
+# Escenario: Éxito - Creación de usuario normal
+POST {{baseUrl}}/users
 Content-Type: application/json
 
 {
   "name": "John Doe",
-  "email": "john@exampl.com",
-  "password": "john123",
-  "confirmPassword": "john123"
+  "email": "john@example.com",
+  "password": "john123324",
+  "confirmPassword": "john123324"
 }
 
 ###
-POST http://localhost:3000/users
+
+# @name CrearUsuarioJane
+# Escenario: Éxito - Creación de segundo usuario
+POST {{baseUrl}}/users
 Content-Type: application/json
 
 {
   "name": "Jane Doe",
   "email": "jane@example.com",
-  "password": "jane123",
-  "confirmPassword": "jane123"
+  "password": "jane123435",
+  "confirmPassword": "jane123435"
 }
 
 ###
-POST http://localhost:3000/users
+
+# Escenario: Error - Las contraseñas no coinciden (400)
+POST {{baseUrl}}/users
 Content-Type: application/json
 
 {
   "name": "Juan Perez",
   "email": "juan@example.com",
   "password": "juan123",
-  "confirmPassword": "juan123"
+  "confirmPassword": "juan123_diferente"
 }
+
+###
+
+# Escenario: Error - Email ya en uso (400)
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "name": "John Clon",
+  "email": "john@example.com",
+  "password": "passwordNueva1",
+  "confirmPassword": "passwordNueva1"
+}
+
+###
+
+# Escenario: Error - Contraseña ya en uso (400)
+POST {{baseUrl}}/users
+Content-Type: application/json
+
+{
+  "name": "Otro Usuario",
+  "email": "otro@example.com",
+  "password": "john123324",
+  "confirmPassword": "john123324"
+}
+
+
+### ==========================================
+### 2. OBTENER TODOS LOS USUARIOS (GET /users)
+### ==========================================
+
+# Escenario: Éxito - Admin obtiene todos los usuarios (201)
+GET {{baseUrl}}/users
+x-auth: admin-auth
+
+###
+
+# Escenario: Éxito - Admin obtiene usuarios con Paginación (201)
+GET {{baseUrl}}/users?page=1&limit=1
+x-auth: admin-auth
+
+###
+
+# Escenario: Error - Falta header de autorización (401)
+GET {{baseUrl}}/users
+
+###
+
+# Escenario: Error - Header de admin incorrecto (401)
+GET {{baseUrl}}/users
+x-auth: admin-falso
+
+
+### ==========================================
+### 3. OBTENER USUARIO POR ID (GET /users/:id)
+### ==========================================
+
+# Escenario: Éxito - Usuario obtiene su propio perfil (200)
+GET {{baseUrl}}/users/1
+x-auth: john123324
+
+###
+
+# Escenario: Error - Intento de ver perfil sin auth (401)
+GET {{baseUrl}}/users/1
+
+###
+
+# Escenario: Error - Intento de ver perfil con password incorrecto (401)
+GET {{baseUrl}}/users/1
+x-auth: password_incorrecto
+
+###
+
+# Escenario: Error - Usuario no existe (404)
+GET {{baseUrl}}/users/999
+x-auth: cualquiera
+
+
+### ==========================================
+### 4. ACTUALIZAR USUARIO (PATCH /users/:id)
+### ==========================================
+
+# Escenario: Éxito - Actualiza campos válidos e ignora inválidos (200)
+PATCH {{baseUrl}}/users/1
+Content-Type: application/json
+x-auth: john123324
+
+{
+  "name": "John Doe Actualizado",
+  "hola": "este campo debe ser ignorado"
+}
+
+###
+
+# Escenario: Error - No se enviaron campos válidos (400)
+PATCH {{baseUrl}}/users/1
+Content-Type: application/json
+x-auth: john123324
+
+{
+  "campoFalso": "valor",
+  "intentandoHackear": true
+}
+
+###
+
+# Escenario: Error - No autorizado para actualizar (401)
+PATCH {{baseUrl}}/users/1
+Content-Type: application/json
+x-auth: clave_falsa
+
+{
+  "name": "Hacker"
+}
+
+
+### ==========================================
+### 5. ELIMINAR USUARIO (DELETE /users/:id)
+### ==========================================
+
+# Escenario: Error - Intento de eliminar sin permisos (401)
+DELETE {{baseUrl}}/users/2
+x-auth: me_invento_la_clave
+
+###
+
+# Escenario: Éxito - Jane elimina su cuenta (200)
+DELETE {{baseUrl}}/users/2
+x-auth: jane123435
+
+###
+
+# Escenario: Error - Intentar eliminar cuenta ya borrada (404)
+DELETE {{baseUrl}}/users/2
+x-auth: jane123435
