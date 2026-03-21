@@ -1,181 +1,262 @@
-@baseUrl = http://localhost:3000
+#-------PUNTO 1-------
+### Ruta raiz con Auth:
+GET http://localhost:3000/
+x-auth: Pass123
 
-### ==========================================
-### 1. CREAR USUARIOS (POST /users)
-### ==========================================
+### Ruta raiz sin Auth:
+GET http://localhost:3000/
 
-# @name CrearUsuarioJohn
-# Escenario: Éxito - Creación de usuario normal
-POST {{baseUrl}}/users
+### Ruta Home:
+GET http://localhost:3000/home.html
+x-auth: Pass123
+
+### Ruta Tasks:
+GET http://localhost:3000/tasks.html
+x-auth: Pass123
+
+#-------PUNTO 2-------
+### Usuarios vacio:
+GET http://localhost:3000/users?page=1&limit=3
+x-auth: admin_auth
+
+#-------PUNTO 3-------
+### Crear Usuario 1 (ID: 1):
+POST http://localhost:3000/users
 Content-Type: application/json
 
 {
-  "name": "John Doe",
-  "email": "john@example.com",
-  "password": "john123324",
-  "confirmPassword": "john123324"
+    "name": "Usuario Uno",
+    "email": "uno@prueba.com",
+    "password": "Password1",
+    "confirm_password": "Password1"
 }
 
-###
-
-# @name CrearUsuarioJane
-# Escenario: Éxito - Creación de segundo usuario
-POST {{baseUrl}}/users
+### Crear Usuario 2 (ID: 2):
+POST http://localhost:3000/users
 Content-Type: application/json
 
 {
-  "name": "Jane Doe",
-  "email": "jane@example.com",
-  "password": "jane123435",
-  "confirmPassword": "jane123435"
+    "name": "Usuario Dos",
+    "email": "dos@prueba.com",
+    "password": "Password2",
+    "confirm_password": "Password2"
 }
 
-###
-
-# Escenario: Error - Las contraseñas no coinciden (400)
-POST {{baseUrl}}/users
+### Crear Usuario 3 (ID: 3):
+POST http://localhost:3000/users
 Content-Type: application/json
 
 {
-  "name": "Juan Perez",
-  "email": "juan@example.com",
-  "password": "juan123",
-  "confirmPassword": "juan123_diferente"
+    "name": "Usuario Tres",
+    "email": "tres@prueba.com",
+    "password": "Password3",
+    "confirm_password": "Password3"
 }
 
-###
+### Tareas vacio:
+GET http://localhost:3000/tasks?page=1&limit=5
+x-auth: Password2
 
-# Escenario: Error - Email ya en uso (400)
-POST {{baseUrl}}/users
+### Etiquetas vacio:
+GET http://localhost:3000/tags?page=1&limit=5
+x-auth: Password3
+
+#-------PUNTO 4-------
+### Consulta el usuario con ID=2:
+GET http://localhost:3000/users/2
+x-auth: Password2
+
+#-------PUNTO 5-------
+### Consulta usuarios en la pagina 1, limite 2:
+GET http://localhost:3000/users?page=1&limit=2
+x-auth: admin_auth
+
+#-------PUNTO 6-------
+### Edita tu usuario con el ID: 3 (TU NOMBRE COMPLETO):
+PATCH http://localhost:3000/users/3
+x-auth: Password3
 Content-Type: application/json
 
 {
-  "name": "John Clon",
-  "email": "john@example.com",
-  "password": "passwordNueva1",
-  "confirmPassword": "passwordNueva1"
+    "name": "Brandon Perez Saldana" 
 }
 
-###
+#-------PUNTO 7-------
+### Elimina el usuario con el ID 1:
+DELETE http://localhost:3000/users/1
+x-auth: Password1
 
-# Escenario: Error - Contraseña ya en uso (400)
-POST {{baseUrl}}/users
+### Consulta todos los usuarios para corroborar (limit=10):
+GET http://localhost:3000/users?page=1&limit=10
+x-auth: admin_auth
+
+#-------PUNTO 8-------
+### Crea Tarea 1 para usuario ID=2:
+POST http://localhost:3000/tasks
+x-auth: Password2
 Content-Type: application/json
 
 {
-  "name": "Otro Usuario",
-  "email": "otro@example.com",
-  "password": "john123324",
-  "confirmPassword": "john123324"
+    "title": "Aprender Node.js",
+    "due_date": "2026-04-01",
+    "status": "A",
+    "tags": []
 }
 
-
-### ==========================================
-### 2. OBTENER TODOS LOS USUARIOS (GET /users)
-### ==========================================
-
-# Escenario: Éxito - Admin obtiene todos los usuarios (201)
-GET {{baseUrl}}/users
-x-auth: admin-auth
-
-###
-
-# Escenario: Éxito - Admin obtiene usuarios con Paginación (201)
-GET {{baseUrl}}/users?page=1&limit=1
-x-auth: admin-auth
-
-###
-
-# Escenario: Error - Falta header de autorización (401)
-GET {{baseUrl}}/users
-
-###
-
-# Escenario: Error - Header de admin incorrecto (401)
-GET {{baseUrl}}/users
-x-auth: admin-falso
-
-
-### ==========================================
-### 3. OBTENER USUARIO POR ID (GET /users/:id)
-### ==========================================
-
-# Escenario: Éxito - Usuario obtiene su propio perfil (200)
-GET {{baseUrl}}/users/1
-x-auth: john123324
-
-###
-
-# Escenario: Error - Intento de ver perfil sin auth (401)
-GET {{baseUrl}}/users/1
-
-###
-
-# Escenario: Error - Intento de ver perfil con password incorrecto (401)
-GET {{baseUrl}}/users/1
-x-auth: password_incorrecto
-
-###
-
-# Escenario: Error - Usuario no existe (404)
-GET {{baseUrl}}/users/999
-x-auth: cualquiera
-
-
-### ==========================================
-### 4. ACTUALIZAR USUARIO (PATCH /users/:id)
-### ==========================================
-
-# Escenario: Éxito - Actualiza campos válidos e ignora inválidos (200)
-PATCH {{baseUrl}}/users/1
+### Crea Tarea 2 para usuario ID=2:
+POST http://localhost:3000/tasks
+x-auth: Password2
 Content-Type: application/json
-x-auth: john123324
 
 {
-  "name": "John Doe Actualizado",
-  "hola": "este campo debe ser ignorado"
+    "title": "Hacer la Práctica 3",
+    "due_date": "2026-03-25",
+    "status": "A",
+    "tags": []
 }
 
-###
-
-# Escenario: Error - No se enviaron campos válidos (400)
-PATCH {{baseUrl}}/users/1
+### Crea Tarea 3 para usuario ID=2:
+POST http://localhost:3000/tasks
+x-auth: Password2
 Content-Type: application/json
-x-auth: john123324
 
 {
-  "campoFalso": "valor",
-  "intentandoHackear": true
+    "title": "Estudiar para el examen",
+    "due_date": "2026-03-30",
+    "status": "F",
+    "tags": []
 }
 
-###
+#-------PUNTO 9-------
+### Consulta la tarea con ID=1:
+GET http://localhost:3000/tasks/1
+x-auth: Password2
 
-# Escenario: Error - No autorizado para actualizar (401)
-PATCH {{baseUrl}}/users/1
+#-------PUNTO 10-------
+### Consulta tareas pagina 2, limite 1 (Usuario ID=2):
+GET http://localhost:3000/tasks?page=2&limit=1
+x-auth: Password2
+
+#-------PUNTO 11-------
+### Edita tu tarea con el ID: 3:
+PATCH http://localhost:3000/tasks/3
+x-auth: Password2
 Content-Type: application/json
-x-auth: clave_falsa
 
 {
-  "name": "Hacker"
+    "status": "C"
 }
 
+#-------PUNTO 12-------
+### Elimina la tarea con el ID 1:
+DELETE http://localhost:3000/tasks/1
+x-auth: Password2
 
-### ==========================================
-### 5. ELIMINAR USUARIO (DELETE /users/:id)
-### ==========================================
+### Consulta todas las tareas para corroborar (limit=10):
+GET http://localhost:3000/tasks?page=1&limit=10
+x-auth: Password2
 
-# Escenario: Error - Intento de eliminar sin permisos (401)
-DELETE {{baseUrl}}/users/2
-x-auth: me_invento_la_clave
+#-------PUNTO 13-------
+### Crea Etiqueta 1 para usuario ID=3:
+POST http://localhost:3000/tags
+x-auth: Password3
+Content-Type: application/json
 
-###
+{
+    "name": "Escuela",
+    "color": "blue"
+}
 
-# Escenario: Éxito - Jane elimina su cuenta (200)
-DELETE {{baseUrl}}/users/2
-x-auth: jane123435
+### Crea Etiqueta 2 para usuario ID=3:
+POST http://localhost:3000/tags
+x-auth: Password3
+Content-Type: application/json
 
-###
+{
+    "name": "Trabajo",
+    "color": "red"
+}
 
-# Escenario: Error - Intentar eliminar cuenta ya borrada (404)
-DELETE {{baseUrl}}/users/2
-x-auth: jane123435
+### Crea Etiqueta 3 para usuario ID=3:
+POST http://localhost:3000/tags
+x-auth: Password3
+Content-Type: application/json
+
+{
+    "name": "Personal",
+    "color": "green"
+}
+
+#-------PUNTO 14-------
+### Consulta la etiqueta con ID=2:
+GET http://localhost:3000/tags/2
+x-auth: Password3
+
+#-------PUNTO 15-------
+### Consulta etiquetas pagina 1, limite 3 (Usuario ID=3):
+GET http://localhost:3000/tags?page=1&limit=3
+x-auth: Password3
+
+#-------PUNTO 16-------
+### Edita tu etiqueta con el ID: 2:
+PATCH http://localhost:3000/tags/2
+x-auth: Password3
+Content-Type: application/json
+
+{
+    "color": "yellow"
+}
+
+#-------PUNTO 17-------
+### Elimina la etiqueta con el ID 1:
+DELETE http://localhost:3000/tags/1
+x-auth: Password3
+
+### Consulta todas las etiquetas para corroborar (limit=10):
+GET http://localhost:3000/tags?page=1&limit=10
+x-auth: Password3
+
+#-------PUNTO 18: CASOS DE ERROR Y VALIDACIONES EXTRA-------
+### Error: Registro con email repetido (Deberia fallar):
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+    "name": "Usuario Clon",
+    "email": "dos@prueba.com",
+    "password": "PasswordClon",
+    "confirm_password": "PasswordClon"
+}
+
+### Error: Registro con contraseñas que no coinciden:
+POST http://localhost:3000/users
+Content-Type: application/json
+
+{
+    "name": "Usuario Fail",
+    "email": "fail@prueba.com",
+    "password": "Password123",
+    "confirm_password": "Password321"
+}
+
+### Error: Consultar usuario ajeno / Contraseña incorrecta (401):
+GET http://localhost:3000/users/2
+x-auth: Password_Incorrecta
+
+### Error: Intentar acceder a tareas sin header x-auth (401):
+GET http://localhost:3000/tasks.html
+
+### Error: Consultar usuario que no existe (404):
+GET http://localhost:3000/users/99
+x-auth: Password3
+
+### Error: Intentar actualizar usuario sin enviar campos en el body (400):
+PATCH http://localhost:3000/users/3
+x-auth: Password3
+Content-Type: application/json
+
+{}
+
+### Error: Consultar lista de usuarios sin admin_auth (401):
+GET http://localhost:3000/users?page=1&limit=3
+x-auth: Password2
