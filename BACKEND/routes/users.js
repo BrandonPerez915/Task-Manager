@@ -1,17 +1,20 @@
-import express from 'express'
+import { Router } from 'express'
 
-import * as controller from '../controllers/users_controller.js'
+import { users } from '../database/storage.js'
 
-const usersRouter = express.Router()
+import { requireAdmin, requireUser, requireUserProps } from './middlewares.js'
+import * as userController from '../controllers/users_controller.js'
 
-usersRouter.post('/', controller.postUser)
+const usersRouter = Router()
+const requiredUser = requireUser(users)
 
-usersRouter.get('/', controller.getUsers)
+usersRouter.route('/')
+  .post(userController.postUser)
+  .get(requireAdmin, userController.getUsers)
 
-usersRouter.get('/:id', controller.userAuth, controller.getUser)
-
-usersRouter.patch('/:id', controller.userAuth, controller.patchUser)
-
-usersRouter.delete('/:id', controller.userAuth, controller.deleteUser)
+usersRouter.route('/:id')
+  .get(requiredUser, userController.getUser)
+  .patch(requiredUser, requireUserProps, userController.patchUser)
+  .delete(requiredUser, userController.deleteUser)
 
 export { usersRouter }
