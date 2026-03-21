@@ -1,8 +1,3 @@
-let currentTaskId = 0
-function getNextTaskId() {
-  return ++currentTaskId
-}
-
 class TaskException extends Error {
   constructor(errorMessage) {
     super(errorMessage)
@@ -14,18 +9,19 @@ class Task {
   #id
   #title
   #description
-  #due_date
-  #owner
+  #dueDate
+  #userId
   #status
   #tags
 
-  constructor(title, description, due_date, owner, status = 'A', tags = []) {
-    this.#id = getNextTaskId()
+  constructor(id, title, description, dueDate, userId, status = 'A', tags = []) {
+    this.#id = id
+    if (!id ||typeof id !== 'number') throw new TaskException('ID requerido')
 
     this.title = title
-    this.description = description
-    this.due_date = due_date
-    this.owner = owner
+    this.#description = description
+    this.dueDate = dueDate
+    this.userId = userId
     this.status = status
     this.tags = tags
   }
@@ -39,11 +35,11 @@ class Task {
   get description() {
     return this.#description
   }
-  get due_date() {
-    return this.#due_date
+  get dueDate() {
+    return this.#dueDate
   }
-  get owner() {
-    return this.#owner
+  get userId() {
+    return this.#userId
   }
   get status() {
     return this.#status
@@ -52,42 +48,37 @@ class Task {
     return this.#tags
   }
 
-  set title(value) {
-    if (!value || value.trim() === '') {
-      throw new TaskException('El título no puede estar vacío')
+  set title(title) {
+    if (!title || title.trim() === '') {
+      throw new TaskException('Es necesario proporcionar un titulo')
     }
-    this.#title = value
+    this.#title = title
   }
 
   set description(value) {
     this.#description = value
   }
 
-  set due_date(value) {
-    let dateValue = value
-    if (typeof value === 'string' || typeof value === 'number') {
-      dateValue = new Date(value)
-    }
+  set dueDate(date) {
+    const dateValue = new Date(date)
 
     if (!(dateValue instanceof Date) || isNaN(dateValue.getTime())) {
-      throw new TaskException('La fecha debe ser válida')
+      throw new TaskException('Es necesario proporcionar una fecha valida')
     }
-    this.#due_date = dateValue
+    this.#dueDate = dateValue
   }
 
-  set owner(value) {
+  set userId(value) {
     if (!value || typeof value !== 'number') {
-      throw new TaskException('El owner debe ser un ID de usuario válido')
+      throw new TaskException('Es necesario proporcionar un usuario valido')
     }
-    this.#owner = value
+    this.#userId = value
   }
 
   set status(value) {
     const validStatus = ['A', 'F', 'C']
     if (!validStatus.includes(value)) {
-      throw new TaskException(
-        'El status debe ser A (Active), F (Finished) o C (Cancelled)',
-      )
+      throw new TaskException('El status debe ser A (Active), F (Finished) o C (Cancelled)')
     }
     this.#status = value
   }
@@ -101,13 +92,13 @@ class Task {
 
   toObj() {
     return {
-      id: this.id,
-      title: this.title,
-      description: this.description,
-      due_date: this.due_date,
-      owner: this.owner,
-      status: this.status,
-      tags: this.tags,
+      id: this.#id,
+      title: this.#title,
+      description: this.#description,
+      dueDate: this.#dueDate.toISOString(),
+      userId: this.#userId,
+      status: this.#status,
+      tags: this.#tags
     }
   }
 }

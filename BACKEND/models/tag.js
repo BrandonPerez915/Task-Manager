@@ -42,17 +42,17 @@ class Tag {
   set color(value) {
     if (!value) throw new TagException('El tag debe tener un color')
 
-    let cleanColor = value.startsWith('#') ? value.substring(1) : value
+    const cleanColor = value.startsWith('#') ? value.substring(1) : value
 
     if (cleanColor.length !== 3 && cleanColor.length !== 6) {
       throw new TagException('El color hexadecimal debe tener 3 o 6 caracteres')
     }
 
     const validChars = '0123456789ABCDEFabcdef'
-    for (let char of cleanColor) {
+    for (const char of cleanColor) {
       if (validChars.indexOf(char) === -1) {
         throw new TagException(
-          'Formato incorrecto: el color debe ser hexadecimal',
+          'Formato incorrecto: el color debe ser hexadecimal'
         )
       }
     }
@@ -64,7 +64,7 @@ class Tag {
     return {
       id: this.id,
       name: this.name,
-      color: this.color,
+      color: this.color
     }
   }
 }
