@@ -1,108 +1,105 @@
 import { Task } from '../models/task.js'
-import { data } from '../db.js'
 
-function createTask(
-  title,
-  description,
-  due_date,
-  owner,
-  status = 'A',
-  tags = [],
-) {
-  data.tasks.push(new Task(title, description, due_date, owner, status, tags))
-}
+import { save, nextId } from '../database/storageUtils.js'
+import { tasks } from '../database/storage.js'
 
-function getTaskById(id) {
-  let task = data.tasks.find((task) => task.id === id)
+function postTask(req, res) {
+  const {
+    title, description, dueDate, status, tags
+  } = req.body
 
-  if (!task) throw new Error('404 - Task not found')
-  else return task
-}
-
-function searchTasks(attribute, value) {
-  if (data.tasks.length === 0) return []
-  const firstTask = data.tasks[0]
-
-  if (!(attribute in firstTask)) {
-    throw new Error(`El atributo "${attribute}" no existe en la clase Task.`)
+  let newTask
+  try {
+    newTask = new Task(
+      nextId(tasks),
+      title,
+      description || ' ',
+      dueDate || new Date().toISOString(),
+      req.userId,
+      status || 'A',
+      tags || []
+    )
+  } catch (error) {
+    return res.status(400).send(error.message)
   }
 
-  return data.tasks.filter((task) => {
-    const taskValue = task[attribute]
+  tasks.push(newTask)
+  save(tasks)
 
-    if (taskValue instanceof Date) {
-      const searchDate = new Date(value).getTime()
-      return taskValue.getTime() === searchDate
-    }
+  return res.status(201).send('Tarea creada exitosamente')
+}
 
-    if (typeof taskValue === 'string') {
-      return taskValue.toLowerCase().includes(String(value).toLowerCase())
-    }
+function getTasks(req, res) {
+  const userId = req.userId
 
-    if (attribute === 'tags') {
-      return taskValue.some((tagId) => tagId === value)
-    }
+  const filteredTasks = tasks.filter(task => task.userId === userId)
 
-    return taskValue == value
+  const page = parseInt(req.query.page) || 1
+  const limit = parseInt(req.query.limit) || 20
+
+  const total = filteredTasks.length
+  const start = (page - 1) * limit
+  const end = start + limit
+
+  const slicedTasks = filteredTasks.slice(start, end).map(task => task.toObj())
+
+  const nextPage = end < total ? page + 1 : null
+  const prevPage = page > 1 ? page - 1 : null
+  const totalPages = Math.ceil(total / limit)
+
+  res.status(201).json({
+    page,
+    limit,
+    total,
+    start,
+    end,
+    nextPage,
+    prevPage,
+    totalPages,
+    data: slicedTasks
   })
 }
 
-function getAllTasks() {
-  return data.tasks
+function getTask(req, res) {
+  return res.status(200).json(req.task.toObj())
 }
 
-function updateTask(id, newInfo) {
-  let task = data.tasks.find((task) => task.id === id)
+function patchTask(req, res) {
+  const task = req.task
+  const properties = req.properties
+  const backup = { ...task }
 
-  if (!task) {
-    throw new Error('404 - Task not found')
+  try {
+    properties.forEach(prop => task[prop] = req.body[prop])
+  } catch (error) {
+    Object.assign(task, backup) // Rollback
+    return res.status(400).send(error.message)
   }
 
-  const validAttributes = [
-    'title',
-    'description',
-    'due_date',
-    'owner',
-    'status',
-    'tags',
-  ]
-  let updatedCount = 0
-
-  for (let key in newInfo) {
-    if (validAttributes.includes(key)) {
-      // Propagación de posibles errores en los setters de Task
-      try {
-        task[key] = newInfo[key]
-        updatedCount++
-      } catch (error) {
-        throw new Error(`Error al actualizar la tarea: ${error.message}`)
-      }
-    }
-  }
-
-  if (updatedCount === 0) {
-    throw new Error('Ningún atributo válido para actualizar task')
-  }
-
-  return true
+  save(tasks)
+  return res.status(200).json({
+    message: 'Tarea modificada con exito',
+    task: task.toObj()
+  })
 }
 
-function deleteTask(id) {
-  const taskIndex = data.tasks.findIndex((task) => task.id === id)
+function deleteTask(req, res) {
+  const task = req.task
 
-  if (taskIndex === -1) {
-    throw new Error('404 - Task not found')
-  }
+  const index = tasks.indexOf(task)
+  tasks.splice(index, 1)
 
-  data.tasks.splice(taskIndex, 1)
-  return true
+  res.status(200).json({
+    message: `Tarea con id ${task.id} perteneciente al usuario con id ${task.userId} eliminada`,
+    task: task.toObj()
+  })
+
+  save(tasks)
 }
-
 export {
-  createTask,
-  getTaskById,
-  searchTasks,
-  getAllTasks,
-  updateTask,
-  deleteTask,
+  postTask,
+  getTasks,
+  getTask,
+  patchTask,
+  deleteTask
 }
