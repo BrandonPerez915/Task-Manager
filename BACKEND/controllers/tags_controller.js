@@ -1,6 +1,6 @@
 import { Tag } from '../models/tag.js'
 
-import { tags, save, nextId } from '../database/storage.js'
+import { tags, tasks, save, nextId } from '../database/storage.js'
 
 function postTag(req, res) {
   const { name, color } = req.body
@@ -75,6 +75,12 @@ function patchTag(req, res) {
 
 function deleteTag(req, res) {
   const tag = req.tag
+
+  for(const task of tasks) {
+    if(tag.userId === task.userId && task.tags.includes(tag.id))
+      return res.status(400).send('No es posible eliminar esta etiqueta porque pertenece a una tarea')
+  }
+
   const index = tags.indexOf(tag)
   tags.splice(index, 1)
 
