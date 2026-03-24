@@ -1,78 +1,92 @@
 import { Tag } from '../models/tag.js'
-import { data } from '../db.js'
 
-function createTag(name, color) {
-  data.tags.push(new Tag(name, color))
-}
+import { tags, save, nextId } from '../database/storage.js'
 
-function getTagById(id) {
-  let tag = data.tags.find((tag) => tag.id === id)
+function postTag(req, res) {
+  const { name, color } = req.body
 
-  if (!tag) throw new Error('404 - Tag not found')
-  else return tag
-}
-
-function searchTags(attribute, value) {
-  if (data.tags.length === 0) return []
-  const firstTag = data.tags[0]
-
-  if (!(attribute in firstTag)) {
-    throw new Error(`El atributo "${attribute}" no existe en la clase Tag.`)
+  let newTag
+  try {
+    newTag = new Tag(nextId(tags), name, color, req.userId)
+  } catch (error) {
+    return res.status(400).send(error.message)
   }
 
-  return data.tags.filter((tag) => {
-    const tagValue = tag[attribute]
+  tags.push(newTag)
+  save(tags)
 
-    if (typeof tagValue === 'string') {
-      return tagValue.toLowerCase().includes(String(value).toLowerCase())
-    }
+  return res.status(201).send('Etiqueta creada exitosamente')
+}
 
-    return tagValue == value
+function getTags(req, res) {
+  const userId = req.userId
+
+  const filteredTags = tags.filter(tag => tag.userId === userId)
+
+  const page = parseInt(req.query.page) || 1
+  const limit = parseInt(req.query.limit) || 20
+
+  const total = filteredTags.length
+  const start = (page - 1) * limit
+  const end = start + limit
+
+  const slicedTags = filteredTags.slice(start, end).map(task => task.toObj())
+
+
+  const nextPage = end < total ? page + 1 : null
+  const prevPage = page > 1 ? page - 1 : null
+  const totalPages = Math.ceil(total / limit)
+
+  res.status(200).json({
+    page,
+    limit,
+    total,
+    start,
+    end,
+    nextPage,
+    prevPage,
+    totalPages,
+    tags: slicedTags
   })
 }
 
-function getAllTags() {
-  return data.tags
+function getTag(req, res) {
+  res.status(200).json(req.tag.toObj())
 }
 
-function updateTag(id, newInfo) {
-  let tag = data.tags.find((tag) => tag.id === id)
+function patchTag(req, res) {
+  const tag = req.tag
+  const properties = req.properties
+  const backup = { ...tag }
 
-  if (!tag) {
-    throw new Error('404 - Tag not found')
+  try {
+    properties.forEach(prop => tag[prop] = req.body[prop])
+  } catch (error) {
+    Object.assign(tag, backup)
+    return res.status(400).message(error.message)
   }
 
-  const validAttributes = ['name', 'color']
-  let updatedCount = 0
-
-  for (let key in newInfo) {
-    if (validAttributes.includes(key)) {
-      // Propagación de posibles errores en los setters de Tag
-      try {
-        tag[key] = newInfo[key]
-        updatedCount++
-      } catch (error) {
-        throw new Error(`Error al actualizar el tag: ${error.message}`)
-      }
-    }
-  }
-
-  if (updatedCount === 0) {
-    throw new Error('Ningun atributo válido para actualizar tag')
-  }
-
-  return true
+  save(tags)
+  return res.status(200).json({
+    message: 'Etiqueta modificada con exito',
+    tag: tag.toObj()
+  })
 }
 
-function deleteTag(id) {
-  const index = data.tags.findIndex((tag) => tag.id === id)
+function deleteTag(req, res) {
+  const tag = req.tag
+  const index = tags.indexOf(tag)
+  tags.splice(index, 1)
 
-  if (index === -1) {
-    throw new Error('404 - Tag not found')
-  }
+  save(tags)
 
-  data.tags.splice(index, 1)
-  return true
+  return res.status(200).json({
+    message: `La etiqueta con id ${tag.id} perteneciente al usuario con id ${tag.userId} eliminada`,
+    tag: tag.toObj()
+  })
+
 }
 
-export { createTag, getTagById, searchTags, getAllTags, updateTag, deleteTag }
+export {
+  postTag, getTags, getTag, patchTag, deleteTag
+}
