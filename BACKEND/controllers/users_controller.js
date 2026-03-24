@@ -1,7 +1,6 @@
-import { save, nextId } from '../database/storageUtils.js'
-import { users } from '../database/storage.js'
-
 import { User } from '../models/user.js'
+
+import { users, save, nextId } from '../database/storage.js'
 
 function postUser(req, res) {
   const { name, email, password, confirm_password } = req.body
@@ -55,7 +54,7 @@ function getUsers(req, res) {
     nextPage,
     prevPage,
     totalPages,
-    data: slicedUsers
+    users: slicedUsers
   })
 }
 

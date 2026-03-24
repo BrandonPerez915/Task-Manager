@@ -1,7 +1,6 @@
 import { Task } from '../models/task.js'
 
-import { save, nextId } from '../database/storageUtils.js'
-import { tasks } from '../database/storage.js'
+import { tasks, save, nextId } from '../database/storage.js'
 
 function postTask(req, res) {
   const {
@@ -47,7 +46,7 @@ function getTasks(req, res) {
   const prevPage = page > 1 ? page - 1 : null
   const totalPages = Math.ceil(total / limit)
 
-  res.status(201).json({
+  res.status(200).json({
     page,
     limit,
     total,
@@ -56,7 +55,7 @@ function getTasks(req, res) {
     nextPage,
     prevPage,
     totalPages,
-    data: slicedTasks
+    tasks: slicedTasks
   })
 }
 
@@ -85,16 +84,15 @@ function patchTask(req, res) {
 
 function deleteTask(req, res) {
   const task = req.task
-
   const index = tasks.indexOf(task)
   tasks.splice(index, 1)
 
-  res.status(200).json({
+  save(tasks)
+
+  return res.status(200).json({
     message: `Tarea con id ${task.id} perteneciente al usuario con id ${task.userId} eliminada`,
     task: task.toObj()
   })
-
-  save(tasks)
 }
 
 export {
