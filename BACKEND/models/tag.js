@@ -1,8 +1,3 @@
-let currentTagId = 0
-function getNextTagId() {
-  return ++currentTagId
-}
-
 class TagException extends Error {
   constructor(errorMessage) {
     super(errorMessage)
@@ -14,9 +9,11 @@ class Tag {
   #id
   #name
   #color
+  #userId
 
-  constructor(name, color) {
-    this.#id = getNextTagId()
+  constructor(id, name, color, userId) {
+    this.#id = id
+    this.#userId = userId
 
     this.name = name
     this.color = color
@@ -32,20 +29,25 @@ class Tag {
     return this.#color
   }
 
-  set name(value) {
-    if (!value || value.trim() === '') {
-      throw new TagException('El nombre del tag no puede estar vacío')
-    }
-    this.#name = value
+  get userId() {
+    return this.#userId
   }
 
-  set color(value) {
-    if (!value) throw new TagException('El tag debe tener un color')
+  set name(name) {
+    if (!name || name.trim() === '') {
+      throw new TagException('Es necesario proporcionar un nombre pra la etiqueta')
+    }
+    this.#name = name
+  }
 
-    const cleanColor = value.startsWith('#') ? value.substring(1) : value
+  set color(color) {
+    if (!color)
+      throw new TagException('Es necesario proporcionar un color para la etiqueta')
 
-    if (cleanColor.length !== 3 && cleanColor.length !== 6) {
-      throw new TagException('El color hexadecimal debe tener 3 o 6 caracteres')
+    const cleanColor = color.startsWith('#') ? color.substring(1) : color
+
+    if (cleanColor.length !== 6) {
+      throw new TagException('Formato incorrecto: EL color debe ser un hexadecimal de 6 caracteres')
     }
 
     const validChars = '0123456789ABCDEFabcdef'
@@ -62,9 +64,10 @@ class Tag {
 
   toObj() {
     return {
-      id: this.id,
-      name: this.name,
-      color: this.color
+      id: this.#id,
+      name: this.#name,
+      color: this.#color,
+      userId: this.#userId
     }
   }
 }
