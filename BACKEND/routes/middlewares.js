@@ -60,7 +60,7 @@ function matchUserPassword(users) {
     if (!userId) return res.status(400).send('Usuario no encontrado')
 
     req.userId = userId
-    next()
+    return next()
   }
 
 }
@@ -72,13 +72,11 @@ function requireTask(tasks) {
 
     const task = tasks.find(task => task.id === taskId)
 
-    if(!task)
-      return res.status(404).send('El id proporcionado no corresponde a ninguna tarea')
-    if(task.userId !== userId)
-      return res.status(404).send('Esta tarea pertenece a otro usuario')
+    if (!task || task.userId !== userId)
+      return res.status(404).send(`El id proporcionado no corresponde a ninguna tarea perteneciente al usuario con id ${userId}`)
 
     req.task = task
-    next()
+    return next()
   }
 }
 
@@ -86,7 +84,33 @@ function requireTaskProps(req, res, next) {
   const task = req.task
   const properties = Object.keys(req.body).filter(prop => prop in task)
 
-  if(properties.length === 0)
+  if (properties.length === 0)
+    return res.status(400).send('No se proporcionaron propiedades validas para modificar')
+
+  req.properties = properties
+  return next()
+}
+
+function requireTag(tags) {
+  return (req, res, next) => {
+    const userId = req.userId
+    const tagId = parseInt(req.params.id)
+
+    const tag = tags.find(tag => tag.id === tagId)
+
+    if (!tag || tag.userId !== userId)
+      return res.status(404).send(`El id proporcionado no corresponde a ninguna etiqueta perteneciente al usuario con id ${userId}`)
+
+    req.tag = tag
+    return next()
+  }
+}
+
+function requireTagProps(req, res, next) {
+  const tag = req.tag
+  const properties = Object.keys(req.body).filter(prop => prop in tag)
+
+  if (properties.length === 0)
     return res.status(400).send('No se proporcionaron propiedades validas para modificar')
 
   req.properties = properties
@@ -101,5 +125,7 @@ export {
   requireUserProps,
   matchUserPassword,
   requireTask,
-  requireTaskProps
+  requireTaskProps,
+  requireTag,
+  requireTagProps
 }
