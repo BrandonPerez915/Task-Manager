@@ -1,27 +1,4 @@
-[
-  {
-    "id": 1,
-    "name": "Urgente",
-    "color": "#FF0000"
-  },
-  {
-    "id": 2,
-    "name": "Trabajo",
-    "color": "#3498DB"
-  },
-  {
-    "id": 3,
-    "name": "Personal",
-    "color": "#2ECC71"
-  },
-  {
-    "id": 4,
-    "name": "Escuela",
-    "color": "#F39C12"
-  },
-  {
-    "id": 5,
-    "name": "Hogar",
-    "color": "#9B59B6"
-  }
-]
+{
+  "tags": [
+  ]
+}
