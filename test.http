@@ -10,14 +10,24 @@ GET http://localhost:3000/
 GET http://localhost:3000/home.html
 x-auth: Pass123
 
+### Ruta Home sin Auth:
+GET http://localhost:3000/home.html
+
 ### Ruta Tasks:
 GET http://localhost:3000/tasks.html
 x-auth: Pass123
 
+### Ruta Tasks sin Auth:
+GET http://localhost:3000/tasks.html
+
 #-------PUNTO 2-------
-### Usuarios vacio:
+### Consultar usuarios:
 GET http://localhost:3000/users?page=1&limit=3
 x-auth: admin_auth
+
+### Consultar usuarios sin admin_auth:
+GET http://localhost:3000/users?page=1&limit=3
+x-auth: Password2
 
 #-------PUNTO 3-------
 ### Crear Usuario 1 (ID: 1):
@@ -53,12 +63,28 @@ Content-Type: application/json
     "confirm_password": "Password3"
 }
 
-### Tareas vacio:
-GET http://localhost:3000/tasks?page=1&limit=5
+### Consultar tareas (Usuario ID=1):
+GET http://localhost:3000/tasks
+x-auth: Password1
+
+### Consultar tareas (Usuario ID=2):
+GET http://localhost:3000/tasks
 x-auth: Password2
 
-### Etiquetas vacio:
-GET http://localhost:3000/tags?page=1&limit=5
+### Consultar tareas (Usuario ID=3):
+GET http://localhost:3000/tasks
+x-auth: Password3
+
+### Consultar etiquetas (Usuario ID=1):
+GET http://localhost:3000/tags
+x-auth: Password1
+
+### Consultar etiquetas (Usuario ID=2):
+GET http://localhost:3000/tags
+x-auth: Password2
+
+### Consultar etiquetas (Usuario ID=3):
+GET http://localhost:3000/tags
 x-auth: Password3
 
 #-------PUNTO 4-------
@@ -78,7 +104,7 @@ x-auth: Password3
 Content-Type: application/json
 
 {
-    "name": "Brandon Perez Saldana" 
+    "name": "Brandon Michelle Pérez Saldaña"
 }
 
 #-------PUNTO 7-------
@@ -86,12 +112,12 @@ Content-Type: application/json
 DELETE http://localhost:3000/users/1
 x-auth: Password1
 
-### Consulta todos los usuarios para corroborar (limit=10):
-GET http://localhost:3000/users?page=1&limit=10
+### Consulta todos los usuarios para corroborar:
+GET http://localhost:3000/users
 x-auth: admin_auth
 
 #-------PUNTO 8-------
-### Crea Tarea 1 para usuario ID=2:
+### Crear Tarea 1 para usuario ID=2:
 POST http://localhost:3000/tasks
 x-auth: Password2
 Content-Type: application/json
@@ -103,7 +129,7 @@ Content-Type: application/json
     "tags": []
 }
 
-### Crea Tarea 2 para usuario ID=2:
+### Crear Tarea 2 para usuario ID=2:
 POST http://localhost:3000/tasks
 x-auth: Password2
 Content-Type: application/json
@@ -115,7 +141,7 @@ Content-Type: application/json
     "tags": []
 }
 
-### Crea Tarea 3 para usuario ID=2:
+### Crear Tarea 3 para usuario ID=2:
 POST http://localhost:3000/tasks
 x-auth: Password2
 Content-Type: application/json
@@ -128,17 +154,17 @@ Content-Type: application/json
 }
 
 #-------PUNTO 9-------
-### Consulta la tarea con ID=1:
+### Consultar la tarea con ID=1:
 GET http://localhost:3000/tasks/1
 x-auth: Password2
 
 #-------PUNTO 10-------
-### Consulta tareas pagina 2, limite 1 (Usuario ID=2):
+### Consultar tareas pagina 2, limite 1 (Usuario ID=2):
 GET http://localhost:3000/tasks?page=2&limit=1
 x-auth: Password2
 
 #-------PUNTO 11-------
-### Edita tu tarea con el ID: 3:
+### Editar tarea con el ID: 3:
 PATCH http://localhost:3000/tasks/3
 x-auth: Password2
 Content-Type: application/json
@@ -148,12 +174,12 @@ Content-Type: application/json
 }
 
 #-------PUNTO 12-------
-### Elimina la tarea con el ID 1:
+### Eliminar la tarea con el ID 1:
 DELETE http://localhost:3000/tasks/1
 x-auth: Password2
 
-### Consulta todas las tareas para corroborar (limit=10):
-GET http://localhost:3000/tasks?page=1&limit=10
+### Consultar todas las tareas para corroborar (limit=10):
+GET http://localhost:3000/tasks
 x-auth: Password2
 
 #-------PUNTO 13-------
@@ -164,7 +190,7 @@ Content-Type: application/json
 
 {
     "name": "Escuela",
-    "color": "blue"
+    "color": "#2ca9e8"
 }
 
 ### Crea Etiqueta 2 para usuario ID=3:
@@ -174,7 +200,7 @@ Content-Type: application/json
 
 {
     "name": "Trabajo",
-    "color": "red"
+    "color": "#e82c2c"
 }
 
 ### Crea Etiqueta 3 para usuario ID=3:
@@ -184,7 +210,7 @@ Content-Type: application/json
 
 {
     "name": "Personal",
-    "color": "green"
+    "color": "#2c8e2c"
 }
 
 #-------PUNTO 14-------
@@ -204,7 +230,7 @@ x-auth: Password3
 Content-Type: application/json
 
 {
-    "color": "yellow"
+    "color": "#e3ef39"
 }
 
 #-------PUNTO 17-------
@@ -212,51 +238,6 @@ Content-Type: application/json
 DELETE http://localhost:3000/tags/1
 x-auth: Password3
 
-### Consulta todas las etiquetas para corroborar (limit=10):
-GET http://localhost:3000/tags?page=1&limit=10
+### Consulta todas las etiquetas para corroborar:
+GET http://localhost:3000/tags
 x-auth: Password3
-
-#-------PUNTO 18: CASOS DE ERROR Y VALIDACIONES EXTRA-------
-### Error: Registro con email repetido (Deberia fallar):
-POST http://localhost:3000/users
-Content-Type: application/json
-
-{
-    "name": "Usuario Clon",
-    "email": "dos@prueba.com",
-    "password": "PasswordClon",
-    "confirm_password": "PasswordClon"
-}
-
-### Error: Registro con contraseñas que no coinciden:
-POST http://localhost:3000/users
-Content-Type: application/json
-
-{
-    "name": "Usuario Fail",
-    "email": "fail@prueba.com",
-    "password": "Password123",
-    "confirm_password": "Password321"
-}
-
-### Error: Consultar usuario ajeno / Contraseña incorrecta (401):
-GET http://localhost:3000/users/2
-x-auth: Password_Incorrecta
-
-### Error: Intentar acceder a tareas sin header x-auth (401):
-GET http://localhost:3000/tasks.html
-
-### Error: Consultar usuario que no existe (404):
-GET http://localhost:3000/users/99
-x-auth: Password3
-
-### Error: Intentar actualizar usuario sin enviar campos en el body (400):
-PATCH http://localhost:3000/users/3
-x-auth: Password3
-Content-Type: application/json
-
-{}
-
-### Error: Consultar lista de usuarios sin admin_auth (401):
-GET http://localhost:3000/users?page=1&limit=3
-x-auth: Password2
